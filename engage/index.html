@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engagement Studio</title>
+<style>
+:root{--bg:#0f1012;--card:#191b1f;--line:#2a2d33;--text:#eceef1;--muted:#8b9099;--accent:#ff5a1f;--ok:#2fbf71;}
+@media (prefers-color-scheme:light){:root{--bg:#f5f5f3;--card:#fff;--line:#e3e3df;--text:#16171a;--muted:#6b6f76;}}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,system-ui,sans-serif}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:2}
+h1{font-size:18px;margin:0;letter-spacing:.3px}h1 span{color:var(--accent)}
+nav{display:flex;gap:4px;margin-left:auto}
+nav button,.btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+nav button.on{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{background:transparent}
+main{max-width:860px;margin:0 auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:22px}.stat small{color:var(--muted)}
+.card{display:grid;grid-template-columns:120px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card.done{opacity:.45}
+.card img{width:120px;height:150px;object-fit:cover;border-radius:8px;background:var(--line)}
+.who{font-weight:600}.who small{color:var(--muted);font-weight:400}
+.cap{color:var(--muted);font-size:13px;margin:4px 0 8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit;resize:vertical;min-height:62px}
+.why{font-size:12px;color:var(--muted);margin:4px 0 10px}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-left:6px}
+.empty{text-align:center;color:var(--muted);padding:48px 0}
+.t{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.t .n{flex:1}.t small{color:var(--muted)}.off{opacity:.45}
+form{display:flex;gap:6px;margin-bottom:14px}form input,form select{flex:1;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ok);color:#fff;padding:9px 16px;border-radius:8px;opacity:0;transition:.2s}
+.toast.show{opacity:1}
+#run{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:7px 10px}
+#run svg{width:18px;height:18px;display:block}
+#run:disabled{cursor:progress;color:var(--accent);border-color:var(--accent)}
+#run.busy svg{animation:spin .9s linear infinite}
+#runN{font-size:13px;font-variant-numeric:tabular-nums}#runN:empty{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#run.busy svg{animation-duration:3s}}
+.cnt{font-size:12px;color:var(--muted)}.cnt:empty{display:none}nav button.on .cnt{color:var(--accent)}
+.day{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:18px 0 8px}.day b{color:var(--text)}
+.arc{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.arc img{width:48px;height:60px;object-fit:cover;border-radius:6px;background:var(--line);flex:none}
+.arc .n{flex:1;min-width:0}.arc p{margin:3px 0 0;font-size:14px}.arc small{color:var(--muted)}
+.arc .st{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ok)}.arc .st.sk{color:var(--muted)}
+.arc a{color:inherit}
+@media (max-width:560px){.card{grid-template-columns:1fr}.card img{width:100%;height:220px}.stats{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header><h1>Engagement <span>Studio</span></h1>
+<nav><button id="tBrands" class="on">Brands <span class="cnt" id="cBrand"></span></button><button id="tPeople">People <span class="cnt" id="cPerson"></span></button><button id="tArchive">Archive</button><button id="tTargets">Accounts</button><button id="tDevices">Devices</button></nav>
+<button class="btn" id="run" title="Get 5 new brands and 5 new people" aria-label="Get 5 new brands and 5 new people"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span id="runN" aria-live="polite"></span></button></header>
+<main>
+<section id="queue"><div class="stats" id="stats"></div><div id="list"></div></section>
+<section id="archive" hidden><div id="alist"></div></section>
+<section id="targets" hidden>
+<form id="add"><input id="handle" placeholder="@handle (business or creator account)" required>
+<select id="kind"><option>brand</option><option value="creator">person (creator)</option><option>meet</option><option>media</option></select>
+<button class="btn primary">Add</button></form><div id="tlist"></div></section>
+<section id="devices" hidden></section>
+<section id="pair" hidden><div class="empty"><p><b>Private page.</b> Enter your pairing code to use Engagement Studio on this device.<br>
+<small>Get a code from a device that's already paired (Devices → Pair another device).</small></p>
+<form id="pairf"><input id="code" placeholder="8-character code" autocapitalize="characters" autocomplete="one-time-code" maxlength="9"><button class="btn primary">Pair</button></form></div></section>
+</main><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"k":(n??"?");
+const API="https://gxitusyxtoxuucxlzbwf.supabase.co/functions/v1/engagement";
+let KEY="";try{KEY=localStorage.getItem("es_key")||""}catch{}
+function needPair(){for(const k of ["queue","archive","targets","devices"])$("#"+k).hidden=true;$("nav").hidden=true;$("#run").hidden=true;$("#pair").hidden=false}
+async function call(u,opt={}){
+  const r=await fetch(API+u,{...opt,headers:{"Content-Type":"application/json","x-es-key":KEY,...(opt.headers||{})}});
+  if(r.status===401){try{localStorage.removeItem("es_key")}catch{}KEY="";needPair();throw new Error("not paired")}
+  return r;
+}
+const get=async u=>(await call(u)).json();
+const post=(u,b)=>call(u,{method:"POST",body:JSON.stringify(b||{})});
+function copy(ta){
+  ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+  let ok=false;try{ok=document.execCommand("copy")}catch{}
+  if(!ok&&navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>{},()=>{});
+  ta.blur();toast("Comment copied: like the post, then paste");
+}
+let toastT;function toast(t,ms=1800){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),ms)}
+let GROUP="brand";
+async function load(){
+  const d=await get("/drafts"),s=d.stats;
+  const n={brand:0,person:0};for(const r of d.drafts)n[r.group]++;
+  $("#cBrand").textContent=n.brand||"";$("#cPerson").textContent=n.person||"";
+  d.drafts=d.drafts.filter(r=>r.group===GROUP);
+  $("#stats").innerHTML=[["Waiting",s.waiting],["Done today",s.done_today],["Done this week",s.done_week],["Accounts this week",s.accounts_week]]
+    .map(([l,v])=>`<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
+  document.title=s.waiting?`(${s.waiting}) Engagement Studio`:"Engagement Studio";
+  $("#list").innerHTML=d.drafts.length?d.drafts.map(r=>`
+   <div class="card ${r.status!=="new"?"done":""}" data-id="${r.id}">
+    <img src="${esc(r.image)}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
+    <div><div class="who">@${esc(r.username)} <small>${fmt(r.followers)} followers · ${esc((r.posted||"").slice(0,10))}</small><span class="tag">${esc(r.angle)}</span></div>
+     <div class="cap">${esc(r.caption)}</div>
+     <textarea ${r.status!=="new"?"disabled":""}>${esc(r.comment)}</textarea>
+     <div class="why">${esc(r.why)}</div>
+     ${r.status==="new"?`<div class="row">
+      <button class="btn primary" data-a="open" data-url="${esc(r.permalink)}">Copy &amp; open post</button>
+      <button class="btn ghost" data-a="redraft">Rewrite</button>
+      <button class="btn ghost" data-a="skip">Skip</button></div>`:`<small>${r.status==="done"?"Posted":"Skipped"}</small>`}
+    </div></div>`).join(""):`<div class="empty">No ${GROUP==="brand"?"brand":"people"} comments waiting. Press ↻ for 5 new brands and 5 new people.</div>`;
+}
+$("#list").addEventListener("click",async e=>{
+  const b=e.target.closest("button[data-a]");if(!b)return;
+  const card=b.closest(".card"),id=card.dataset.id,ta=card.querySelector("textarea");
+  if(b.dataset.a==="open"){
+    copy(ta);window.open(b.dataset.url,"_blank");
+    card.querySelector(".row").outerHTML='<small style="color:var(--ok);font-weight:600">Posted ✓ moved to Archive</small>';
+    await post(`/drafts/${id}/done`,{comment:ta.value});
+    toast("Copied and marked posted: like the post, then paste",2600);
+    setTimeout(load,1500);return;
+  }
+  if(b.dataset.a==="redraft"){b.textContent="Rewriting…";b.disabled=true}
+  await post(`/drafts/${id}/${b.dataset.a}`);load();
+});
+const dayKey=t=>{const d=new Date(t);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()};
+function dayLabel(t){
+  const d=new Date(t),now=new Date(),y=new Date(now);y.setDate(now.getDate()-1);
+  const full=d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:d.getFullYear()===now.getFullYear()?undefined:"numeric"});
+  return dayKey(t)===dayKey(now)?`<b>Today</b> · ${full}`:dayKey(t)===dayKey(y)?`<b>Yesterday</b> · ${full}`:`<b>${full}</b>`;
+}
+async function loadA(){
+  const d=(await get("/archive")).drafts;
+  if(!d.length){$("#alist").innerHTML='<div class="empty">Nothing archived yet. Comments land here once you copy them.</div>';return}
+  let html="",cur="",n=0;
+  const counts={};for(const r of d){const k=dayKey(r.acted);counts[k]=(counts[k]||0)+(r.status==="done"?1:0)}
+  for(const r of d){
+    const k=dayKey(r.acted);
+    if(k!==cur){cur=k;html+=`<div class="day">${dayLabel(r.acted)} · ${counts[k]} posted</div>`}
+    const time=new Date(r.acted).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+    html+=`<div class="arc" data-id="${r.id}"><img src="${esc(r.image)}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
+     <div class="n"><span class="st ${r.status==="done"?"":"sk"}">${r.status==="done"?"Posted":"Skipped"} ${time}</span>
+      · <a href="${esc(r.permalink)}" target="_blank" rel="noopener"><b>@${esc(r.username)}</b></a>
+      <small> · their post ${esc((r.posted||"").slice(0,10))}</small>
+      <p>${esc(r.comment)}</p></div>
+     <button class="btn ghost" data-a="restore" title="Put back in the queue">Undo</button></div>`;
+  }
+  $("#alist").innerHTML=html;
+}
+$("#alist").addEventListener("click",async e=>{const b=e.target.closest("button[data-a=restore]");if(!b)return;
+  await post(`/drafts/${b.closest(".arc").dataset.id}/restore`);toast("Back in the queue");loadA()});
+async function loadT(){
+  const t=await get("/targets");
+  $("#tlist").innerHTML=t.map(x=>`<div class="t ${x.active===false?"off":""}"><div class="n"><b>@${esc(x.username)}</b> <small>${esc(x.kind)} · ${fmt(x.followers)}${x.note?" · "+esc(x.note):""}</small></div>
+   <button class="btn ghost" data-u="${esc(x.username)}" data-a="toggle">${x.active===false?"Turn on":"Pause"}</button>
+   <button class="btn ghost" data-u="${esc(x.username)}" data-a="remove">Remove</button></div>`).join("");
+}
+$("#tlist").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
+  await post("/targets/"+b.dataset.a,{username:b.dataset.u});loadT()});
+$("#add").addEventListener("submit",async e=>{e.preventDefault();
+  const r=await post("/targets",{username:$("#handle").value,kind:$("#kind").value});
+  if(!r.ok)return toast((await r.json()).error);$("#handle").value="";loadT()});
+const runBtn=$("#run");
+function showRun(s){runBtn.classList.toggle("busy",s.running);runBtn.disabled=s.running;$("#runN").textContent=s.running?`${s.brand??0}/5 brands · ${s.person??0}/5 people`:""}
+async function pollRun(){
+  let last=0;
+  for(;;){
+    let s;try{s=await get("/run")}catch{s={running:false,made:last,want:5,error:"Lost touch with Engagement Studio"}}
+    showRun(s);
+    if(s.made!==last){last=s.made;load()}
+    if(!s.running){
+      load();
+      toast(s.error||(s.made>=s.want?`${s.brand} brands and ${s.person} people ready`:s.made?`Found ${s.brand} brands and ${s.person} people: add more accounts for a full five each`:"No fresh posts right now: add more accounts or try later"),s.made>=s.want&&!s.error?2200:4500);
+      return;
+    }
+    await new Promise(r=>setTimeout(r,2500));
+  }
+}
+runBtn.onclick=async()=>{showRun({running:true,made:0,want:10,brand:0,person:0});if($("#queue").hidden)tab("brands");await post("/run");pollRun()};
+const TABS={brands:"tBrands",people:"tPeople",archive:"tArchive",targets:"tTargets",devices:"tDevices"};
+const SECT={brands:"queue",people:"queue"};
+const tab=q=>{for(const k of ["queue","archive","targets","devices"])$("#"+k).hidden=(SECT[q]||q)!==k;
+  for(const k in TABS)$("#"+TABS[k]).classList.toggle("on",q===k);
+  if(SECT[q])GROUP=q==="people"?"person":"brand";
+  q==="targets"?loadT():q==="devices"?loadD():q==="archive"?loadA():load()};
+for(const k in TABS)$("#"+TABS[k]).onclick=()=>tab(k);
+async function loadD(){
+  const d=await get("/devices");
+  $("#devices").innerHTML=`<div class="card" style="display:block">
+   <h3 style="margin-top:0">Paired devices</h3>
+   ${d.map(x=>`<div class="t"><div class="n"><b>${esc(x.label||"Device")}</b> <small>paired ${esc(new Date(x.paired_at).toLocaleDateString("en-GB"))}${x.last_seen?" · last used "+esc(new Date(x.last_seen).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})):""}</small></div></div>`).join("")}
+   <div class="row" style="margin-top:12px"><button class="btn primary" id="dnew">Pair another device</button><button class="btn ghost" id="dout">Unpair all devices</button></div>
+   <div id="dcode"></div>
+   <p class="why">Only paired devices can see your comments or accounts. A pairing code works once and expires after 15 minutes. If you lose a phone, press Unpair all devices, then pair again.</p></div>`;
+  $("#dnew").onclick=async()=>{const c=await (await post("/pair/new")).json();
+    $("#dcode").innerHTML=`<p>On the new device open this page and enter:</p><p style="font:700 28px ui-monospace,monospace;letter-spacing:4px;margin:6px 0">${esc(c.code.slice(0,4))} ${esc(c.code.slice(4))}</p><p class="why">Expires at ${esc(new Date(c.expires).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}))}.</p>`};
+  $("#dout").onclick=async()=>{if(!confirm("Unpair every device, including this one? You'll need a new pairing code to get back in."))return;
+    await post("/unpair-all");try{localStorage.removeItem("es_key")}catch{}KEY="";needPair()};
+}
+$("#pairf").addEventListener("submit",async e=>{e.preventDefault();
+  const ua=navigator.userAgent,label=/iPhone/.test(ua)?"iPhone":/iPad/.test(ua)?"iPad":/Android/.test(ua)?"Android phone":/Mac/.test(ua)?"Mac":"Browser";
+  const r=await fetch(API+"/pair",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:$("#code").value,label})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.key)return toast(j.error||"Couldn't pair",4000);
+  KEY=j.key;try{localStorage.setItem("es_key",KEY)}catch{toast("This browser won't remember the pairing (private mode?)",4000)}
+  location.reload()});
+if(!KEY)needPair();
+else{load().catch(()=>{});setInterval(()=>{if(!$("#queue").hidden)load().catch(()=>{})},60000);get("/run").then(s=>{if(s.running)pollRun()}).catch(()=>{})}
+</script></body></html>
