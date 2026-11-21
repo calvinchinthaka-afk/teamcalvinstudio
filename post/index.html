@@ -32,13 +32,29 @@
 </main>
 
 <main id="app" class="hidden">
-  <section class="pad">
-    <h1>Ready to post <span id="count" class="muted"></span></h1>
-    <p class="muted small">Tap <b>Get video</b>, then <b>Share to Instagram</b> → Reel. The caption is copied:
+  <nav class="tabs" role="tablist">
+    <button id="tabReady" class="tab on" type="button" role="tab" aria-selected="true">Ready to post <span id="count"></span></button>
+    <button id="tabArchive" class="tab" type="button" role="tab" aria-selected="false">Archive</button>
+  </nav>
+  <section id="readyView" class="pad">
+    <h1>Ready to post</h1>
+    <p class="muted small">Tap <b>Get video</b>, then <b>Share to Instagram</b> or <b>Share to TikTok</b> (or Save Video in the share sheet). The caption is copied:
       add music, long-press the caption box and Paste, then Share or schedule (Advanced settings).</p>
     <p id="err" class="bad small" role="alert"></p>
     <ul id="list" class="postlist"></ul>
     <p id="empty" class="muted hidden">Nothing waiting. Send a Reel here from the dashboard with “Post with music”.</p>
+  </section>
+  <section id="archiveView" class="pad hidden">
+    <div class="daynav">
+      <button id="older" class="arrow" type="button" aria-label="Previous day">‹</button>
+      <div class="dayname"><b id="archDay"></b><span id="archCount" class="muted small"></span></div>
+      <button id="newer" class="arrow" type="button" aria-label="Next day">›</button>
+    </div>
+    <p class="muted small">Reels you posted from this phone, by the day you posted them. Kept for 30 days.
+      Tap <b>Get video</b>, then <b>Share to Instagram</b> or <b>Share to TikTok</b> to post it again, or Save Video.</p>
+    <p id="archErr" class="bad small" role="alert"></p>
+    <ul id="archList" class="postlist"></ul>
+    <p id="archEmpty" class="muted hidden">Nothing posted yet. Reels you mark as posted show up here.</p>
   </section>
   <footer class="pad muted small"><button id="signout" class="link" type="button">Sign this phone out</button></footer>
 </main>
