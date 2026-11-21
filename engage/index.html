@@ -40,6 +40,7 @@ form{display:flex;gap:6px;margin-bottom:14px}form input,form select{flex:1;backg
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){#run.busy svg{animation-duration:3s}}
 .cnt{font-size:12px;color:var(--muted)}.cnt:empty{display:none}nav button.on .cnt{color:var(--accent)}
+.eng{color:var(--ok);font-weight:600}.st2{font-weight:600}.st2.ok{color:var(--ok)}.st2.off{color:var(--muted)}
 .day{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:18px 0 8px}.day b{color:var(--text)}
 .arc{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
 .arc img{width:48px;height:60px;object-fit:cover;border-radius:6px;background:var(--line);flex:none}
@@ -55,6 +56,8 @@ form{display:flex;gap:6px;margin-bottom:14px}form input,form select{flex:1;backg
 <section id="queue"><div class="stats" id="stats"></div><div id="list"></div></section>
 <section id="archive" hidden><div id="alist"></div></section>
 <section id="targets" hidden>
+<p class="why" id="tsum"></p>
+<p class="why">After you post a comment, that account rests for 14 days. Then it only comes back if they engaged (commented on or tagged your posts, or you pressed <b>They replied</b> in the Archive); otherwise it retires. New accounts are found automatically from posts you're shown and people who comment on yours. People need 5k+ followers, brands 10k+.</p>
 <form id="add"><input id="handle" placeholder="@handle (business or creator account)" required>
 <select id="kind"><option>brand</option><option value="creator">person (creator)</option><option>meet</option><option>media</option></select>
 <button class="btn primary">Add</button></form><div id="tlist"></div></section>
@@ -138,18 +141,31 @@ async function loadA(){
      <div class="n"><span class="st ${r.status==="done"?"":"sk"}">${r.status==="done"?"Posted":"Skipped"} ${time}</span>
       · <a href="${esc(r.permalink)}" target="_blank" rel="noopener"><b>@${esc(r.username)}</b></a>
       <small> · their post ${esc((r.posted||"").slice(0,10))}</small>
-      <p>${esc(r.comment)}</p></div>
-     <button class="btn ghost" data-a="restore" title="Put back in the queue">Undo</button></div>`;
+      <p>${esc(r.comment)}</p>
+      ${r.status==="done"?(r.engaged?`<small class="eng">✓ Engaged: ${esc(r.engaged_how||"")}</small>`:`<small>Rests until ${esc(new Date(Date.parse(r.acted)+14*864e5).toLocaleDateString("en-GB",{day:"numeric",month:"short"}))} · only comes back if they engage</small>`):""}</div>
+     <div class="row" style="flex-direction:column">
+     ${r.status==="done"&&!r.engaged?`<button class="btn ghost" data-a="engaged" data-u="${esc(r.username)}" title="They replied, followed back or messaged you">They replied</button>`:""}
+     <button class="btn ghost" data-a="restore" title="Put back in the queue">Undo</button></div></div>`;
   }
   $("#alist").innerHTML=html;
 }
-$("#alist").addEventListener("click",async e=>{const b=e.target.closest("button[data-a=restore]");if(!b)return;
+$("#alist").addEventListener("click",async e=>{const b=e.target.closest("button[data-a]");if(!b)return;
+  if(b.dataset.a==="engaged"){await post("/targets/engaged",{username:b.dataset.u,how:"replied or followed back"});toast("Marked engaged: they'll come back after their 14-day rest");return loadA()}
   await post(`/drafts/${b.closest(".arc").dataset.id}/restore`);toast("Back in the queue");loadA()});
 async function loadT(){
   const t=await get("/targets");
-  $("#tlist").innerHTML=t.map(x=>`<div class="t ${x.active===false?"off":""}"><div class="n"><b>@${esc(x.username)}</b> <small>${esc(x.kind)} · ${fmt(x.followers)}${x.note?" · "+esc(x.note):""}</small></div>
+  const day=d=>new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+  const ST={new:["Not commented yet",""],due:["Engaged: ready again","ok"],resting:["Resting",""],retired:["Retired: didn't engage","off"],waiting:["Comment waiting","ok"],paused:["Paused","off"]};
+  const n={};for(const x of t)n[x.status]=(n[x.status]||0)+1;
+  const order={due:0,waiting:1,new:2,resting:3,retired:4,paused:5};
+  t.sort((a,b)=>(order[a.status]-order[b.status])||((a.group>b.group)?1:-1)||((b.followers||0)-(a.followers||0)));
+  $("#tsum").innerHTML=`${t.length} accounts · ${n.new||0} not commented yet · ${n.resting||0} resting · ${n.due||0} engaged and ready · ${n.retired||0} retired`;
+  $("#tlist").innerHTML=t.map(x=>{const st=ST[x.status]||[x.status,""];
+   const when=x.status==="resting"&&x.until?` until ${day(x.until)}`:x.last?` · last comment ${day(x.last)}`:"";
+   return `<div class="t ${x.active===false||x.status==="retired"?"off":""}"><div class="n"><b>@${esc(x.username)}</b> <small>${x.group==="person"?"person":esc(x.kind)} · ${fmt(x.followers)}${x.found_via?" · found via "+esc(/^[\w.]+$/.test(x.found_via)?"@"+x.found_via:x.found_via):""}${x.note?" · "+esc(x.note):""}</small>
+    <br><small class="st2 ${st[1]}">${st[0]}${esc(when)}${x.engaged_how&&x.status!=="new"?" · they "+esc(x.engaged_how):""}</small></div>
    <button class="btn ghost" data-u="${esc(x.username)}" data-a="toggle">${x.active===false?"Turn on":"Pause"}</button>
-   <button class="btn ghost" data-u="${esc(x.username)}" data-a="remove">Remove</button></div>`).join("");
+   <button class="btn ghost" data-u="${esc(x.username)}" data-a="remove">Remove</button></div>`}).join("");
 }
 $("#tlist").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
   await post("/targets/"+b.dataset.a,{username:b.dataset.u});loadT()});
